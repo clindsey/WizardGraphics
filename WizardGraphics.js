@@ -37,6 +37,7 @@ wizard_graphics.engines.canvas_graphics = function(bind_elem_id,depth){
     context.save();
     context.globalAlpha = displayable.style['alpha'];
     context.translate(displayable.x,displayable.y);
+    context.rotate(displayable.rotation * Math.PI / 180);
     if(displayable.style['border-width'] > 0){
       context.strokeStyle = displayable.style['border-color'];
       context.lineWidth = displayable.style['border-width'];
@@ -132,7 +133,9 @@ wizard_graphics.engines.canvas_graphics.bind_to_elem = function(node_id,depth){
       width = bind_elem.offsetWidth,
       height = bind_elem.offsetHeight;
   canvas_elem.id = node_id + '_' + depth;
-  canvas_elem.style.marginTop = (0 - depth * height) + 'px';
+  if(depth > 0){
+    canvas_elem.style.marginTop = (0 - height) + 'px';
+  };
   canvas_elem.style.display = 'block';
   canvas_elem.width = width;
   canvas_elem.height = height;
@@ -170,6 +173,9 @@ wizard_graphics.event_dispatcher = function(obj){
   };
   return obj;
 };
+wizard_graphics.convert_to_radians = function(deg){
+  return Math.PI / 180 * deg;
+};
 wizard_graphics.new_global_id = function(){
   var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G'],
       uuid = [],
@@ -190,6 +196,7 @@ wizard_graphics.display_object = function(x,y,style){
       self = wizard_graphics.event_dispatcher({});
   self.x = x;
   self.y = y;
+  self.rotation = 0;
   self.$$id = wizard_graphics.new_global_id();
   self.vertices = [];
   self.style = {
@@ -211,5 +218,20 @@ wizard_graphics.display_object.rectangle = function(x,y,width,height,style){
   self.add_vertex(self.width,0);
   self.add_vertex(self.width,self.height);
   self.add_vertex(0,self.height);
+  return self;
+};
+wizard_graphics.display_object.polygon = function(x,y,radius,edge_count,style){
+  var self = wizard_graphics.display_object(x,y,style);
+  self.radius = radius;
+  self.edge_count = edge_count;
+  var point_index,
+      point_increment = 360 / self.edge_count,
+      plot_x,
+      plot_y;
+  for(point_index = 0; point_index <= 360; point_index += point_increment){
+    plot_x = Math.sin(wizard_graphics.convert_to_radians(point_index + self.rotation + 180)) * (0 - self.radius);
+    plot_y = Math.cos(wizard_graphics.convert_to_radians(point_index + self.rotation + 180)) * self.radius;
+    self.add_vertex(plot_x,plot_y);
+  };
   return self;
 };

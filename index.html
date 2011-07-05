@@ -6,62 +6,89 @@
     <script type="text/javascript" src="WizardGraphics.js"></script>
     <script type="text/javascript">
       var on_load = function(){
-        // wizard_graphics accepts a string for the id of the element to bind to (and pull height, width data from),
-        // a list of controllers, one for each layer (each layer is a canvas element, helps to only redraw layers that need it)
-        // and a callback to execute once the DOM is ready and the controllers are initialized
         wizard_graphics('canvas',[background_layer,foreground_layer],function(engine){
-          engine.draw(); // draw all layers
+          engine.draw();
           setInterval(function(){
-            engine.draw(1); // only draw layer 1 (the one with the boxes), as the other layers are static
-          },1000/20); // run at 20hz
+            engine.draw(1);
+          },1000/20);
         });
       };
       var background_layer = function(scene){
-        // background is a simple rectangle with a solid background color
-        var background = wizard_graphics.display_object.rectangle(0,0,scene.width,scene.height,{'background-color':'#DAE8F2'});
-        scene.add(background);
+        scene.add(wizard_graphics.display_object.rectangle(0,0,scene.width,scene.height,{'background-color':'#333333'}));
+        scene.add(wizard_graphics.display_object.polygon(scene.width / 2,scene.height / 2,scene.height / 2.2,50,{'background-color':'#373732'}));
+        scene.add(wizard_graphics.display_object.polygon(scene.width / 2,scene.height / 2,scene.height / 3.4,40,{'background-color':'#3A3A31'}));
+        scene.add(wizard_graphics.display_object.polygon(scene.width / 2,scene.height / 2,scene.height / 5.6,30,{'background-color':'#3D3D30'}));
+        scene.add(wizard_graphics.display_object.polygon(scene.width / 2,scene.height / 2,scene.height / 12,20,{'background-color':'#40402F'}));
       };
       var foreground_layer = function(scene){
-        var box,
+        var asteroid,
             x,
-            y,
-            vx,
-            vy,
-            color;
+            y;
         for(var i = 0, il = 10; i < il; i++){
-          x = (Math.random() * (scene.width - 20)) + 10;
-          y = (Math.random() * (scene.height - 20)) + 10;
-          vx = Math.random() * 10 - 5;
-          vy = Math.random() * 10 - 5;
-          color = (Math.round(0xFFFFFF * Math.random()).toString(16) + "000000").replace(/([a-f0-9]{6}).+/, "#$1").toUpperCase();
-          box = bouncer(x,y,10,10,vx,vy,color);
-          scene.add(box);
-          box.bind('draw',function(){ // keep box within screen bounds
-            if(this.x > scene.width - this.width || this.x < 0){
-              this.vx *= -1;
+          x = (Math.random() * scene.width) + 10;
+          y = (Math.random() * scene.height) + 10;
+          asteroid = create_asteroid(x,y);
+          scene.add(asteroid);
+          asteroid.bind('draw',function(){
+            if(this.x < 0 - this.radius){
+              this.x = scene.width + this.radius;
             };
-            if(this.y > scene.height - this.height || this.y < 0){
-              this.vy *= -1;
+            if(this.x > scene.width + this.radius){
+              this.x = 0 - this.radius;
+            };
+            if(this.y < 0 - this.radius){
+              this.y = scene.height + this.radius;
+            };
+            if(this.y > scene.height + this.radius){
+              this.y = 0 - this.radius;
             };
           });
         };
       };
-      var bouncer = function(x,y,width,height,vx,vy,color){
-        // bouncer is going to be a display object (has styles and methods)
-        var self = wizard_graphics.display_object.rectangle(x,y,width,height,{'background-color':color});
-        self.vx = vx;
-        self.vy = vy;
-        self.bind('draw',function(){ // move this across the screen
-          self.x += self.vx;
-          self.y += self.vy;
+      var create_asteroid = function(x,y){
+        var life = 3;
+        var radius = Math.random() * 4 + (25),
+            edge_count = Math.floor(Math.random() * 4 + 5) * 2,
+            rotation = Math.random() * 360,
+            direction = Math.random() * 360,
+            speed = Math.random() * 2 + 1,
+            rotation_speed = Math.random() * 18 - 9;
+        return asteroid(x,y,radius,edge_count,rotation,direction,speed,rotation_speed);
+      };
+      var asteroid = function(x,y,radius,edge_count,rotation,direction,speed,rotation_speed){
+        var self = wizard_graphics.display_object(x,y,{'border-color':'#AAAAAA','border-width':2,'background-color':'#222222'});
+        self.vertices = [];
+        self.radius = radius;
+        var point_index,
+            point_increment = 360 / edge_count,
+            edge_offsets = [],
+            plot_x,
+            plot_y,
+            cnt = 0;
+        for(point_index = 0; point_index < 360; point_index += point_increment){
+          var offset = Math.random() * (self.radius / 2);
+          plot_x = Math.sin(convert_to_radians(point_index + rotation + 180)) * (0 - (self.radius + offset));
+          plot_y = Math.cos(convert_to_radians(point_index + rotation + 180)) * (self.radius + offset);
+          self.add_vertex(plot_x,plot_y);
+          cnt++;
+        };
+        self.bind('draw',function(){
+          self.rotation += rotation_speed;
+          var velocity_x = (Math.sin(convert_to_radians(direction)) * speed),
+              velocity_y = (Math.cos(convert_to_radians(direction)) * speed);
+          self.x += velocity_x;
+          self.y += velocity_y;
         });
         return self;
+      };
+      var convert_to_radians = function(deg){
+        return Math.PI / 180 * deg;
       };
     </script>
     <style type="text/css">
       #canvas {
-        width:320px;
-        height:240px;
+        width:640px;
+        height:480px;
         margin:0 auto;
       }
     </style>
