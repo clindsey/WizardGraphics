@@ -27,8 +27,8 @@
             x,
             y;
         for(var i = 0, il = 10; i < il; i++){
-          x = (Math.random() * scene.width) + 10;
-          y = (Math.random() * scene.height) + 10;
+          x = Math.random() * scene.width;
+          y = Math.random() * scene.height;
           asteroid = create_asteroid(x,y);
           scene.add(asteroid);
           asteroid.bind('draw',function(){
@@ -65,19 +65,19 @@
             point_increment = 360 / edge_count,
             edge_offsets = [],
             plot_x,
-            plot_y,
-            cnt = 0;
+            plot_y;
         for(point_index = 0; point_index < 360; point_index += point_increment){
-          var offset = Math.random() * (self.radius / 2);
-          plot_x = Math.sin(convert_to_radians(point_index + rotation + 180)) * (0 - (self.radius + offset));
-          plot_y = Math.cos(convert_to_radians(point_index + rotation + 180)) * (self.radius + offset);
+          var offset = Math.random() * (self.radius / 2),
+              radians = convert_to_radians(point_index + rotation + 180);
+          plot_x = Math.sin(radians) * (0 - (self.radius + offset));
+          plot_y = Math.cos(radians) * (self.radius + offset);
           self.add_vertex(plot_x,plot_y);
-          cnt++;
         };
         self.bind('draw',function(){
           self.rotation += rotation_speed;
-          var velocity_x = (Math.sin(convert_to_radians(direction)) * speed),
-              velocity_y = (Math.cos(convert_to_radians(direction)) * speed);
+          var radians = convert_to_radians(direction),
+              velocity_x = (Math.sin(radians) * speed),
+              velocity_y = (Math.cos(radians) * speed);
           self.x += velocity_x;
           self.y += velocity_y;
         });
