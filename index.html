@@ -15,10 +15,12 @@
       };
       var background_layer = function(scene){
         scene.add(wizard_graphics.display_object.rectangle(0,0,scene.width,scene.height,{'background-color':'#333333'}));
-        scene.add(wizard_graphics.display_object.polygon(scene.width / 2,scene.height / 2,scene.height / 2.2,50,{'background-color':'#373732'}));
-        scene.add(wizard_graphics.display_object.polygon(scene.width / 2,scene.height / 2,scene.height / 3.4,40,{'background-color':'#3A3A31'}));
-        scene.add(wizard_graphics.display_object.polygon(scene.width / 2,scene.height / 2,scene.height / 5.6,30,{'background-color':'#3D3D30'}));
-        scene.add(wizard_graphics.display_object.polygon(scene.width / 2,scene.height / 2,scene.height / 12,20,{'background-color':'#40402F'}));
+        var x = scene.width / 2,
+            y = scene.height / 2;
+        scene.add(wizard_graphics.display_object.polygon(x,y,scene.height / 2.2,50,{'background-color':'#373732'}));
+        scene.add(wizard_graphics.display_object.polygon(x,y,scene.height / 3.4,40,{'background-color':'#3A3A31'}));
+        scene.add(wizard_graphics.display_object.polygon(x,y,scene.height / 5.6,30,{'background-color':'#3D3D30'}));
+        scene.add(wizard_graphics.display_object.polygon(x,y,scene.height / 12,20,{'background-color':'#40402F'}));
       };
       var foreground_layer = function(scene){
         var asteroid,
