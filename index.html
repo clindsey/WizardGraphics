@@ -6,14 +6,18 @@
     <script type="text/javascript" src="WizardGraphics.js"></script>
     <script type="text/javascript">
       var on_load = function(){
+        // wizard_graphics accepts a string for the id of the element to bind to (and pull height, width data from),
+        // a list of controllers, one for each layer (each layer is a canvas element, helps to only redraw layers that need it)
+        // and a callback to execute once the DOM is ready and the controllers are initialized
         wizard_graphics('canvas',[background_layer,foreground_layer],function(engine){
-          engine.draw();
+          engine.draw(); // draw all layers
           setInterval(function(){
-            engine.draw(1);
-          },1000/20);
+            engine.draw(1); // only draw layer 1 (the one with the boxes), as the other layers are static
+          },1000/20); // run at 20hz
         });
       };
       var background_layer = function(scene){
+        // background is a simple rectangle with a solid background color
         var background = wizard_graphics.display_object.rectangle(0,0,scene.width,scene.height,{'background-color':'#DAE8F2'});
         scene.add(background);
       };
@@ -32,7 +36,7 @@
           color = (Math.round(0xFFFFFF * Math.random()).toString(16) + "000000").replace(/([a-f0-9]{6}).+/, "#$1").toUpperCase();
           box = bouncer(x,y,10,10,vx,vy,color);
           scene.add(box);
-          box.bind('draw',function(){
+          box.bind('draw',function(){ // keep box within screen bounds
             if(this.x > scene.width - this.width || this.x < 0){
               this.vx *= -1;
             };
@@ -43,10 +47,11 @@
         };
       };
       var bouncer = function(x,y,width,height,vx,vy,color){
+        // bouncer is going to be a display object (has styles and methods)
         var self = wizard_graphics.display_object.rectangle(x,y,width,height,{'background-color':color});
         self.vx = vx;
         self.vy = vy;
-        self.bind('draw',function(){
+        self.bind('draw',function(){ // move this across the screen
           self.x += self.vx;
           self.y += self.vy;
         });
